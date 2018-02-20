@@ -1,6 +1,8 @@
 import React from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -49,37 +51,35 @@ class App extends React.Component {
       this.setState({ username: '', password: '', user })
 
     } catch (exception) {
-        this.setState({
-          error: 'wrong username or password'
-        })
-        setTimeout(() => {
-          this.setState({ error: null })
-        }, 5000)
-      }
+      this.setState({
+        username: '',
+        password: '',
+        error: 'wrong username or password'
+      })
+      setTimeout(() => {
+        this.setState({ error: null })
+      }, 5000)
+    }
   }
 
-  addBlog = (event) => {
+  addBlog = async (event) => {
     event.preventDefault()
     const blog = {
       title: this.state.title,
       author: this.state.author,
       url: this.state.url
     }
-
-    blogService
-      .create(blog)
-      .then(newBlog => {
-        this.setState({
-          blogs: this.state.blogs.concat(newBlog),
-          title: '',
-          author: '',
-          url: '',
-          notif: `a new blog '${newBlog.title}' by ${newBlog.author} added`
-        })
-        setTimeout(() => {
-          this.setState({ notif: null })
-      }, 5000)
-      })
+    const newBlog = await blogService.create(blog)
+    this.setState({
+      blogs: this.state.blogs.concat(newBlog),
+      title: '',
+      author: '',
+      url: '',
+      notif: `a new blog '${newBlog.title}' by ${newBlog.author} added`
+    })
+    setTimeout(() => {
+      this.setState({ notif: null })
+    }, 5000)
 
   }
   handleLoginFieldChange = (event) => {
@@ -94,40 +94,15 @@ class App extends React.Component {
   render() {
 
     const blogForm = () => (
-      <div>
-        <h2>create new</h2>
-
-        <form onSubmit={this.addBlog}>
-          <div>
-            title
-          <input
-              type="text"
-              name="title"
-              value={this.state.title}
-              onChange={this.handleBlogFieldChange}
-            />
-          </div>
-          <div>
-            author
-          <input
-              type="text"
-              name="author"
-              value={this.state.author}
-              onChange={this.handleBlogFieldChange}
-            />
-          </div>
-          <div>
-            url
-          <input
-              type="text"
-              name="url"
-              value={this.state.url}
-              onChange={this.handleBlogFieldChange}
-            />
-          </div>
-          <button type="submit">save</button>
-        </form>
-      </div>
+      <Togglable buttonLabel="new blog" ref={component => this.blogForm = component}>
+        <BlogForm
+          onSubmit={this.addBlog}
+          title={this.state.title}
+          author={this.state.author}
+          url={this.state.url}
+          handleChange={this.handleBlogFieldChange}
+        />
+      </Togglable>
     )
 
     if (this.state.user === null) {
@@ -171,7 +146,10 @@ class App extends React.Component {
         </div>
         <h2>blogs</h2>
         {this.state.blogs.map(blog =>
-          <Blog key={blog._id} blog={blog} />
+          <Blog
+            key={blog._id}
+            blog={blog}
+          />
         )}
         {blogForm()}
       </div>
