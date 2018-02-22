@@ -4,7 +4,7 @@ class Blog extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      visible: false
+      visible: false,
     }
   }
 
@@ -21,6 +21,8 @@ class Blog extends React.Component {
       marginBottom: 5
     }
 
+    const showWhenLogged = { display: (this.props.blog.user === undefined || this.props.blog.user.username ===  this.props.user.username)  ? '' : 'none' }
+
     const hideWhenVisible = { display: this.state.visible ? 'none' : '' }
     const showWhenVisible = { display: this.state.visible ? '' : 'none' }
     const user = this.props.blog.user === undefined ? '' : `added by ${this.props.blog.user.name}`
@@ -32,15 +34,17 @@ class Blog extends React.Component {
         </div>
         <div style={showWhenVisible}>
           <p onClick={this.toggle}>{this.props.blog.title}</p>
-          <a href={this.props.blog.url}>{this.props.blog.url}</a>           
+          <a href={this.props.blog.url}>{this.props.blog.url}</a>
           <div>
-            {this.props.blog.likes} likes 
-            <button>like</button>
+            {this.props.blog.likes} likes
+            <button onClick={this.props.onLike}>like</button>
           </div>
           <div>
-            { user }
+            {user}
           </div>
-
+        </div>
+        <div style={showWhenLogged}>
+          <button onClick={this.props.delete}>delete blog</button>
         </div>
       </div>
     )

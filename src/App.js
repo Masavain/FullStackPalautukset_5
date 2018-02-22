@@ -81,7 +81,51 @@ class App extends React.Component {
       this.setState({ notif: null })
     }, 5000)
 
+
   }
+
+  likeBlog = (id) => {
+    return () => {
+      const blog = this.state.blogs.find(b => b._id === id)
+      const changedBlog = { ...blog, likes: blog.likes + 1 }
+
+      blogService
+        .update(id, changedBlog)
+        .then(updated => {
+          this.setState({
+            blogs: this.state.blogs.map(b => b._id !== id ? b : updated)
+          })
+        })
+    }
+  }
+
+  deleteBlog = (id) => {
+    return () => {
+      const blog = this.state.blogs.find(b => b._id === id)
+      if (window.confirm(`do you want to delete '${blog.title}'`))
+        blogService
+          .remove(id)
+          .then(Response => {
+            this.setState({
+              blogs: this.state.blogs.filter(b => b._id !== id),
+              notif: `'${blog.title}' was deleted`
+            })
+            setTimeout(() => {
+              this.setState({ notif: null })
+            }, 5000)
+          })
+          .catch(error => {
+            this.setState({
+              notif: `'${blog.title}' was already deleted from the server`,
+              blogs: this.state.blogs.filter(b => b.id !== id)
+            })
+            setTimeout(() => {
+              this.setState({ notif: null })
+            }, 5000)
+          })
+    }
+  }
+
   handleLoginFieldChange = (event) => {
     this.setState({ [event.target.name]: event.target.value })
   }
@@ -90,8 +134,11 @@ class App extends React.Component {
     this.setState({ [event.target.name]: event.target.value })
   }
 
-
   render() {
+
+    const BlogsByLike = this.state.blogs.sort(function (a, b) {
+      return b.likes - a.likes
+    })
 
     const blogForm = () => (
       <Togglable buttonLabel="new blog" ref={component => this.blogForm = component}>
@@ -145,10 +192,13 @@ class App extends React.Component {
           <button onClick={this.logout}> log out</button>
         </div>
         <h2>blogs</h2>
-        {this.state.blogs.map(blog =>
+        {BlogsByLike.map(blog =>
           <Blog
             key={blog._id}
             blog={blog}
+            onLike={this.likeBlog(blog._id)}
+            delete={this.deleteBlog(blog._id)}
+            user={this.state.user}
           />
         )}
         {blogForm()}
