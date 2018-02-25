@@ -29,13 +29,13 @@ class Blog extends React.Component {
 
     return (
       <div style={blogStyle}>
-        <div style={hideWhenVisible}>
-          <p onClick={this.toggle}>{this.props.blog.title}</p>
+        <div style={hideWhenVisible} className="blogContent">
+          <p onClick={this.toggle}>{this.props.blog.title} {this.props.blog.author}</p>
         </div>
-        <div style={showWhenVisible}>
-          <p onClick={this.toggle}>{this.props.blog.title}</p>
+        <div style={showWhenVisible} className="togglableContent">
+          <p onClick={this.toggle}>{this.props.blog.title} {this.props.blog.author}</p>
           <a href={this.props.blog.url}>{this.props.blog.url}</a>
-          <div>
+          <div className="likeButton">
             {this.props.blog.likes} likes
             <button onClick={this.props.onLike}>like</button>
           </div>
