@@ -49,6 +49,7 @@ class App extends React.Component {
       })
       blogService.setToken(user.token)
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
+
       this.setState({ username: '', password: '', user })
 
     } catch (exception) {
