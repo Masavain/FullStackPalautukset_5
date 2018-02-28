@@ -2,25 +2,38 @@ import React from 'react';
 
 
 class App extends React.Component {
+  addAnecdote = (event) => {
+    event.preventDefault()
+    this.props.store.dispatch({ type: 'NEW_ANECDOTE', data: {content: event.target.content.value}})
+    event.target.content.value = ''
+  }
+
+  vote = (id) => () => {
+    this.props.store.dispatch({ type: 'VOTE', data: { id: id }})
+  }
+  
   render() {
-    const anecdotes = this.props.store.getState()
+    const sortAnecdotes = this.props.store.getState().sort(function (a, b) {
+      return b.votes - a.votes
+    })
+
     return (
       <div>
         <h2>Anecdotes</h2>
-        {anecdotes.map(anecdote=>
+        {sortAnecdotes.map(anecdote=>
           <div key={anecdote.id}>
             <div>
               {anecdote.content} 
             </div>
             <div>
               has {anecdote.votes}
-              <button>vote</button>
+              <button onClick={this.vote(anecdote.id)}>vote</button>
             </div>
           </div>
         )}
         <h2>create new</h2>
-        <form>
-          <div><input /></div>
+        <form onSubmit={this.addAnecdote}>
+          <input name="content"/>
           <button>create</button> 
         </form>
       </div>
